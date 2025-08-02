@@ -1,0 +1,111 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-user
+      author: noleg
+      changes:
+        - createTable:
+            tableName: t_users
+            columns:
+              - column:
+                  name: c_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: c_email
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: c_password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_first_name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_last_name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_patronymic
+                  type: VARCHAR(50)
+              - column:
+                  name: c_role
+                  type: VARCHAR(50)
+        - createIndex:
+            indexName: idx_users_email
+            tableName: t_users
+            unique: true
+            columns:
+              - column:
+                  name: c_email
+        - createIndex:
+            indexName: idx_users_last_name
+            tableName: t_users
+            columns:
+              - column:
+                  name: c_last_name
+
+  - changeSet:
+      id: create-table-card
+      author: noleg
+      changes:
+        - createTable:
+            tableName: t_cards
+            columns:
+              - column:
+                  name: c_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: c_number
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: c_owner_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_expiration_date
+                  type: VARCHAR(7)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_card_status
+                  type: VARCHAR(50)
+              - column:
+                  name: c_balance
+                  type: DECIMAL
+        - addForeignKeyConstraint:
+            constraintName: fk_user_cards
+            baseTableName: t_cards
+            baseColumnNames: c_owner_id
+            referencedTableName: t_users
+            referencedColumnNames: c_id
+        - createIndex:
+            indexName: idx_cards_number
+            tableName: t_cards
+            unique: true
+            columns:
+              - column:
+                  name: c_number
+        - createIndex:
+            indexName: idx_cards_owner_id
+            tableName: t_cards
+            columns:
+              - column:
+                  name: c_owner_id

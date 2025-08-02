@@ -1,1 +1,776 @@
-# Здесь будет OpenAPI описание всех доступных эндпоинтов и моделей данных.
+openapi: 3.1.0
+info:
+  title: Bank Cards Api
+  description: API системы управления банковскими картами
+  contact:
+    name: Nazarov Oleg
+    email: noleg867@gmail.com
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+tags:
+- name: Контроллер для пользователя.
+  description: Позволяет управлять пользователями (обновлять/удалять/получать).
+- name: Контроллер для карт.
+  description: Позволяет управлять банковскими картами (обновлять/удалять/получать).
+- name: Контроллер для администратора.
+  description: Управляет пользователями системы.
+- name: Контроллер для регистрации/аутентификации.
+  description: Позволяет зарегистрироваться новому пользователю или повторно войти
+    в систему.
+- name: Контроллер для переводов.
+  description: Позволяет переводить деньги между картами одного пользователя.
+paths:
+  /api/transfer:
+    post:
+      tags:
+      - Контроллер для переводов.
+      summary: Перевод средств.
+      description: Позволяет перевести средства между картами пользователя.
+      operationId: transfer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+      security:
+      - JWT: []
+  /api/cards:
+    get:
+      tags:
+      - Контроллер для карт.
+      summary: Получение всех карт.
+      description: Позволяет получить все существующие банковские карты.
+      operationId: getAllCards
+      parameters:
+      - name: pageNumber
+        in: query
+        description: Номер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - name: pageSize
+        in: query
+        description: Размер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+          maximum: 10
+          minimum: 1
+      - name: sort
+        in: query
+        description: Сортировка
+        required: true
+        schema:
+          type: string
+          enum:
+          - ID_ASC
+          - ID_DESC
+          - DATE_ASC
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CardDto"
+      security:
+      - JWT: []
+    post:
+      tags:
+      - Контроллер для карт.
+      summary: Создание карты.
+      description: Позволяет создать новую банковскую карту.
+      operationId: createCard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCardDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+      security:
+      - JWT: []
+  /api/cards/deposit/{cardId}:
+    post:
+      tags:
+      - Контроллер для карт.
+      summary: Пополнение карты.
+      description: Позволяет пополнить банковскую карту.
+      operationId: deposit
+      parameters:
+      - name: cardId
+        in: path
+        description: Идентификатор карты
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: amount
+        in: query
+        description: Сумма пополнения карты
+        required: true
+        schema:
+          type: number
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+      security:
+      - JWT: []
+  /api/cards/block/{cardId}:
+    post:
+      tags:
+      - Контроллер для карт.
+      summary: Блокировка карты.
+      description: Позволяет заблокировать банковскую карту.
+      operationId: blockCard
+      parameters:
+      - name: cardId
+        in: path
+        description: Идентификатор карты
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: ownerId
+        in: query
+        description: Идентификатор владельца карты
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+      security:
+      - JWT: []
+  /api/cards/block/self/{cardId}:
+    post:
+      tags:
+      - Контроллер для карт.
+      summary: Блокировка карты пользователем.
+      description: Позволяет заблокировать банковскую карту.
+      operationId: blockCardByUser
+      parameters:
+      - name: cardId
+        in: path
+        description: Идентификатор карты
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+      security:
+      - JWT: []
+  /api/cards/activate/{cardId}:
+    post:
+      tags:
+      - Контроллер для карт.
+      summary: Активация карты.
+      description: Позволяет активировать банковскую карту.
+      operationId: activateCard
+      parameters:
+      - name: cardId
+        in: path
+        description: Идентификатор карты
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: ownerId
+        in: query
+        description: Идентификатор владельца карты
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+      security:
+      - JWT: []
+  /api/auth/sign-up:
+    post:
+      tags:
+      - Контроллер для регистрации/аутентификации.
+      summary: Регистрация пользователя.
+      description: Позволяет зарегистрироваться новому пользователю.
+      operationId: signUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUp"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
+  /api/auth/sign-in:
+    post:
+      tags:
+      - Контроллер для регистрации/аутентификации.
+      summary: Аутентификация пользователя.
+      description: Позволяет повторно войти уже зарегистрированному пользователю.
+      operationId: signIn
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignIn"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/JwtResponse"
+  /api/admin/users/{userId}:
+    delete:
+      tags:
+      - Контроллер для администратора.
+      summary: Удаление пользователя.
+      description: Позволяет удалить любого пользователя по id (кроме администраторов).
+      operationId: deleteUser
+      parameters:
+      - name: userId
+        in: path
+        description: Идентификатор пользователя
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+      security:
+      - JWT: []
+    patch:
+      tags:
+      - Контроллер для администратора.
+      summary: Обновление роли.
+      description: Позволяет обновить роль пользователя.
+      operationId: updateUserRole
+      parameters:
+      - name: userId
+        in: path
+        description: Идентификатор пользователя
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: role
+        in: query
+        description: Роль пользователя
+        required: true
+        schema:
+          type: string
+          enum:
+          - ROLE_USER
+          - ROLE_ADMIN
+      responses:
+        "200":
+          description: OK
+      security:
+      - JWT: []
+  /api/users/me:
+    get:
+      tags:
+      - Контроллер для пользователя.
+      summary: Получение профиля пользователя.
+      description: Позволяет получить текущую информацию о профиле пользователя.
+      operationId: getUserProfile
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ProfileDto"
+      security:
+      - JWT: []
+  /api/cards/{id}:
+    get:
+      tags:
+      - Контроллер для карт.
+      summary: Получение карты по id.
+      description: Позволяет получить существующую банковскую карту по id.
+      operationId: getCard
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор карты
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CardDto"
+      security:
+      - JWT: []
+    delete:
+      tags:
+      - Контроллер для карт.
+      summary: Удаление карты.
+      description: Позволяет удалить существующую банковскую карту.
+      operationId: deleteCard
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор карты
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+      security:
+      - JWT: []
+  /api/cards/{cardId}/balance:
+    get:
+      tags:
+      - Контроллер для карт.
+      summary: Получение баланса карты.
+      description: Позволяет получить баланс банковской карты.
+      operationId: getBalance
+      parameters:
+      - name: cardId
+        in: path
+        description: Идентификатор карты
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: number
+      security:
+      - JWT: []
+  /api/cards/owner/{ownerId}:
+    get:
+      tags:
+      - Контроллер для карт.
+      summary: Получение карт владельца.
+      description: Позволяет получить все существующие банковские карты владельца.
+      operationId: getAllCardsByOwner
+      parameters:
+      - name: ownerId
+        in: path
+        description: Идентификатор владельца карты
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: pageNumber
+        in: query
+        description: Номер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - name: pageSize
+        in: query
+        description: Размер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+          maximum: 10
+          minimum: 1
+      - name: sort
+        in: query
+        description: Сортировка
+        required: true
+        schema:
+          type: string
+          enum:
+          - ID_ASC
+          - ID_DESC
+          - DATE_ASC
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CardDto"
+      security:
+      - JWT: []
+  /api/cards/owner/me:
+    get:
+      tags:
+      - Контроллер для карт.
+      summary: Получение своих карт пользователем.
+      description: Позволяет получить все существующие банковские карты владельца.
+      operationId: getAllCardsByOwner_1
+      parameters:
+      - name: pageNumber
+        in: query
+        description: Номер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - name: pageSize
+        in: query
+        description: Размер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+          maximum: 10
+          minimum: 1
+      - name: sort
+        in: query
+        description: Сортировка
+        required: true
+        schema:
+          type: string
+          enum:
+          - ID_ASC
+          - ID_DESC
+          - DATE_ASC
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CardDto"
+      security:
+      - JWT: []
+  /api/admin/users:
+    get:
+      tags:
+      - Контроллер для администратора.
+      summary: Получение всех пользователей.
+      description: Позволяет получить всех пользователей системы.
+      operationId: getAllUsers
+      parameters:
+      - name: pageNumber
+        in: query
+        description: Номер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - name: pageSize
+        in: query
+        description: Размер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+          maximum: 10
+          minimum: 1
+      - name: sort
+        in: query
+        description: Сортировка
+        required: true
+        schema:
+          type: string
+          enum:
+          - ID_ASC
+          - ID_DESC
+          - LAST_NAME_ASC
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserDto"
+      security:
+      - JWT: []
+components:
+  schemas:
+    TransferDto:
+      type: object
+      description: Данные для перевода
+      properties:
+        fromCardId:
+          type: integer
+          format: int64
+          description: Id карты с которой совершается перевод
+          example: 1
+        toCardId:
+          type: integer
+          format: int64
+          description: Id карты на которую совершается перевод
+          example: 2
+        amount:
+          type: number
+          description: Сумма перевода
+          example: 100.0
+      required:
+      - amount
+      - fromCardId
+      - toCardId
+    CreateCardDto:
+      type: object
+      description: Данные для создания карты
+      properties:
+        ownerId:
+          type: integer
+          format: int64
+          description: Id владельца карты
+          example: 1
+        expirationDate:
+          type: object
+          description: Дата окончания срока действия карты
+          example: 2023-12
+          properties:
+            year:
+              type: integer
+              format: int32
+            month:
+              type: string
+              enum:
+              - JANUARY
+              - FEBRUARY
+              - MARCH
+              - APRIL
+              - MAY
+              - JUNE
+              - JULY
+              - AUGUST
+              - SEPTEMBER
+              - OCTOBER
+              - NOVEMBER
+              - DECEMBER
+            monthValue:
+              type: integer
+              format: int32
+            leapYear:
+              type: boolean
+      required:
+      - expirationDate
+      - ownerId
+    SignUp:
+      type: object
+      description: Регистрация пользователя
+      properties:
+        email:
+          type: string
+          description: Уникальный email пользователя
+          example: user123@gmail.com
+          maxLength: 50
+          minLength: 5
+        password:
+          type: string
+          description: Пароль пользователя
+          example: user_password123
+        firstName:
+          type: string
+          description: Имя пользователя
+          example: Иван
+          maxLength: 50
+          minLength: 5
+        lastName:
+          type: string
+          description: Фамилия пользователя
+          example: Иванов
+          maxLength: 50
+          minLength: 5
+        patronymic:
+          type: string
+          description: Отчество пользователя
+          example: Иванович
+          maxLength: 50
+          minLength: 0
+      required:
+      - email
+      - firstName
+      - lastName
+      - password
+    SignIn:
+      type: object
+      description: Аутентификация пользователя
+      properties:
+        email:
+          type: string
+          description: Уникальный email пользователя
+          example: user123@gmail.com
+          maxLength: 50
+          minLength: 5
+        password:
+          type: string
+          description: Пароль пользователя
+          example: user_password123
+      required:
+      - email
+      - password
+    JwtResponse:
+      type: object
+      description: Ответ при аутентификации
+      properties:
+        token:
+          type: string
+          description: Jwt токен
+    ProfileDto:
+      type: object
+      description: Профиль пользователя
+      properties:
+        firstName:
+          type: string
+          description: Имя пользователя
+          example: Иван
+        lastName:
+          type: string
+          description: Фамилия пользователя
+          example: Иванов
+        patronymic:
+          type: string
+          description: Отчество пользователя
+          example: Иванович
+        email:
+          type: string
+          description: Email пользователя
+          example: example@gmail.com
+    CardDto:
+      type: object
+      description: Банковская карта
+      properties:
+        maskedNumber:
+          type: string
+          description: Номер карты
+          example: '**** **** **** 1234'
+        ownerId:
+          type: integer
+          format: int64
+          description: Id владельца карты
+          example: 1
+        expirationDate:
+          type: object
+          description: Дата окончания действия карты
+          example: 2023-12
+          properties:
+            year:
+              type: integer
+              format: int32
+            month:
+              type: string
+              enum:
+              - JANUARY
+              - FEBRUARY
+              - MARCH
+              - APRIL
+              - MAY
+              - JUNE
+              - JULY
+              - AUGUST
+              - SEPTEMBER
+              - OCTOBER
+              - NOVEMBER
+              - DECEMBER
+            monthValue:
+              type: integer
+              format: int32
+            leapYear:
+              type: boolean
+        status:
+          type: string
+          description: Статус карты
+          enum:
+          - ACTIVE
+          - BLOCKED
+          - TIMED_OUT
+          example: ACTIVE
+        balance:
+          type: number
+          description: Баланс карты
+          example: 1000.0
+    UserDto:
+      type: object
+      description: Пользователь
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Id пользователя
+          example: 1
+          readOnly: true
+        firstName:
+          type: string
+          description: Имя пользователя
+          example: Иван
+        lastName:
+          type: string
+          description: Фамилия пользователя
+          example: Иванов
+        patronymic:
+          type: string
+          description: Отчество пользователя
+          example: Иванович
+        email:
+          type: string
+          description: Email пользователя
+          example: example@gmail.com
+        role:
+          type: string
+          description: Роль пользователя
+          enum:
+          - ROLE_USER
+          - ROLE_ADMIN
+          example: ROLE_USER
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

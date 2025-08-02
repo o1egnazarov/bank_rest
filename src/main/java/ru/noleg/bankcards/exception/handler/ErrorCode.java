@@ -1,0 +1,17 @@
+package ru.noleg.bankcards.exception.handler;
+
+public enum ErrorCode {
+    NO_ACCESS_TO_RECOURSE,
+    UNAUTHORIZED,
+
+    RECOURSE_NOT_FOUND,
+    USER_NOT_FOUND,
+    BUSINESS_LOGIC_ERROR,
+    VALIDATION_ERROR,
+    MISSING_REQUIRED_PARAM,
+
+    DATABASE_ERROR,
+    SERVICE_ERROR,
+    REPOSITORY_ERROR,
+    UNKNOWN_ERROR
+}
