@@ -14,7 +14,7 @@ public record SignUp(
         @NotBlank @Schema(description = "Пароль пользователя", example = "user_password123")
         String password,
 
-        @NotBlank @Size(min = 5, max = 50) @Schema(description = "Имя пользователя", example = "Иван")
+        @NotBlank @Size(max = 50) @Schema(description = "Имя пользователя", example = "Иван")
         String firstName,
 
         @NotBlank @Size(min = 5, max = 50) @Schema(description = "Фамилия пользователя", example = "Иванов")

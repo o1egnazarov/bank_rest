@@ -76,6 +76,7 @@ public class AdminController {
             summary = "Удаление пользователя.",
             description = "Позволяет удалить любого пользователя по id (кроме администраторов)."
     )
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(
             @Parameter(description = "Идентификатор пользователя", required = true)
             @Min(1) @PathVariable("userId") Long userId
