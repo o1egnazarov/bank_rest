@@ -1,7 +1,9 @@
 package ru.noleg.bankcards.controller.card;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -17,6 +19,7 @@ import ru.noleg.bankcards.dto.card.CardSort;
 import ru.noleg.bankcards.dto.card.CreateCardDto;
 import ru.noleg.bankcards.entity.Card;
 import ru.noleg.bankcards.entity.CardStatus;
+import ru.noleg.bankcards.entity.Role;
 import ru.noleg.bankcards.entity.User;
 import ru.noleg.bankcards.mapper.CardMapper;
 import ru.noleg.bankcards.security.user.UserDetailsImpl;
@@ -47,6 +50,12 @@ class CardControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @AfterEach
+    void resetMocks() {
+        Mockito.reset(cardService);
+        Mockito.reset(cardMapper);
+    }
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -365,6 +374,16 @@ class CardControllerTest {
     void getBalance_shouldReturn403_whenNotUser() throws Exception {
         // Arrange
         Long cardId = 1L;
+        Long adminId = 1L;
+
+        User user = new User();
+        user.setId(adminId);
+        user.setRole(Role.ROLE_ADMIN);
+
+        UserDetailsImpl principal = new UserDetailsImpl(user);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities())
+        );
 
         // Act | Assert
         mockMvc.perform(get("/api/cards/{cardId}/balance", cardId))

@@ -1,7 +1,9 @@
 package ru.noleg.bankcards.controller.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -35,6 +37,13 @@ class AuthenticationControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+
+    @AfterEach
+    void resetMocks() {
+        Mockito.reset(authenticationService);
+    }
+
 
     @Test
     void signUp_shouldReturn200AndUserId_whenOk() throws Exception {

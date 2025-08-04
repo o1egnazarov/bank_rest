@@ -1,7 +1,9 @@
 package ru.noleg.bankcards.controller.card;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -36,6 +38,11 @@ class CardTransferControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @AfterEach
+    void resetMocks() {
+        Mockito.reset(cardTransferService);
+    }
 
     @Test
     @WithMockUser(roles = "USER")
