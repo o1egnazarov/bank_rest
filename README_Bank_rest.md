@@ -9,7 +9,7 @@
 1. **Клонируйте репозиторий:**
    ```bash
    git clone https://github.com/o1egnazarov/bank_rest.git
-   cd Bank_rest
+   cd Bank_restt
    ```
 
 2. **Соберите проект и создайте Docker-образ:**
